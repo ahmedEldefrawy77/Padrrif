@@ -2,8 +2,11 @@
 public class UserUnitOfWork : UnitOfWork<User>, IUserUnitOfWork
 {
     private readonly IRepository<User> _repository;
-    public UserUnitOfWork(IRepository<User> repository) : base(repository){
+    private readonly IHttpContextAccessor _contextAccessor;
+    public UserUnitOfWork(IRepository<User> repository,
+        IHttpContextAccessor contextAccessor) : base(repository){
         _repository = repository;
+        _contextAccessor = contextAccessor;
     }
 
     public async Task<List<User>> GetAllUnConfirmedUsers()
@@ -30,5 +33,62 @@ public class UserUnitOfWork : UnitOfWork<User>, IUserUnitOfWork
         {
             return false;
         }
+    }
+
+    public async Task<List<User>?> GetAllUserBasedOnStatuse(int userenum)
+    {
+        List<User>? users = null;
+        RoleEnum role = (RoleEnum)userenum;
+        users  = await _repository.GetList(q => q.Where(e => e.Role == role));
+
+        return users;
+    }
+
+    public async Task<User?> GetUserWithIdentityNumber(int id)
+    {
+        User? userFromDb = null;
+        userFromDb = await _repository.GetSingleEntityWithSomeCondiition(q => q.Where(e => e.IdentityNumber == id));
+        return userFromDb;
+    }
+
+    public async Task<List<User>?> GetUserWithName(string name)
+    {
+        List<User>? userFromDb = null;
+        userFromDb = await _repository.GetList(q=> q.Where(e => e.Name == name));
+        return userFromDb;
+    }
+    public async Task<string> UpdateUser(User user)
+    {
+        Guid id =  _contextAccessor.GetUserId();
+        string res = string.Empty; 
+
+        User? UserFromDb = await _repository.GetSingleEntityWithSomeCondiition(q=>q.Where(e => e.Id == id));
+        if (UserFromDb == null)
+           return res = "wronge Credintials";
+
+        if (user.Name != null)
+          UserFromDb.Name = user.Name;
+        
+        if(user.Email != null)
+        UserFromDb.Email = user.Email;
+
+        if (user.PhoneNumber != null)
+            UserFromDb.PhoneNumber = user.PhoneNumber;
+
+        if(user.Password != null)
+        UserFromDb.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
+
+        if (user.City != null)
+            UserFromDb.City = user.City;
+
+        if(user.ImagePath != null)
+            UserFromDb.ImagePath = user.ImagePath;
+        
+        if(user.Governorate != null)
+            UserFromDb.Governorate = user.Governorate;
+
+        await _repository.Update(UserFromDb);
+
+        return res = "User has been updated successfully";
     }
 }
