@@ -1,5 +1,7 @@
 using Microsoft.OpenApi.Models;
 using Padrrif;
+using Padrrif.UnitOfWork;
+using Padrrif.UnitOfWork.Interface;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,14 +35,19 @@ builder.Services.AddSwaggerGen(options =>
         });
 });
 
-builder.Services.AddDbContext<ApplicationDbContext>(options => {
+builder.Services.AddDbContext<ApplicationDbContext>(
+    options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+               .EnableDetailedErrors()
+               .EnableSensitiveDataLogging()
+               .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));
+//builder.Services.AddDbContext<ApplicationDbContext>(options => {
 
-    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
-           .EnableDetailedErrors()
-           .EnableSensitiveDataLogging()
-           .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
-});
+//    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+//    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
+//           .EnableDetailedErrors()
+//           .EnableSensitiveDataLogging()
+//           .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+//});
 builder.Services.AddOptions();
 builder.Services.ConfigureOptions<JwtAccessOptionsSetup>();
 builder.Services.ConfigureOptions<JwtBearerOptionsSetup>();
@@ -54,12 +61,15 @@ builder.Services.AddScoped<IAuthUnitOfWork, AuthUnitOfWork>();
 builder.Services.AddSingleton<IJwtProvider, JwtProvider>();
 builder.Services.AddScoped<IGovernorateUnitOfWork, GovernorateUnitOfWork>();
 builder.Services.AddScoped<IUserUnitOfWork, UserUnitOfWork>();
+builder.Services.AddScoped<IPriviliegeUnitOfWork, PriviliegeUnitOfWork>();
 builder.Services.AddScoped<INotifactionUnitOfWork, NotifactionUnitOfWork>();
 builder.Services.AddScoped<IComitteeUnitOfWork, ComitteeUnitOfWork>();
 builder.Services.AddScoped<IEducationLevelDtoUnitOfWork, EducationLevelDtoUnitOfWork>();
 builder.Services.AddScoped<IVillageUnitOfWork, VillageUnitOfWork>();
 builder.Services.AddScoped<IOwnerShipTypeUnitOfWork, OwnerShipTypeUnitOfWork>();
 builder.Services.AddScoped<IDamageUnitOfWork, DamageUnitOfWork>();
+builder.Services.AddScoped<IUserPrivilegeUnitOfWork, UserPrivilegeUnitOfWork>();
+builder.Services.AddScoped<IPriviliegeUnitOfWork, PriviliegeUnitOfWork>();
 
 
 builder.Services.AddSingleton<NotificationHubConecctedUsers>();

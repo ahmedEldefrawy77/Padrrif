@@ -1,4 +1,7 @@
-﻿namespace Padrrif;
+﻿using Padrrif.Entities;
+using Padrrif.UnitOfWork.Interface;
+
+namespace Padrrif;
 public class AuthUnitOfWork : IAuthUnitOfWork
 {
     private readonly IRepository<User> _repository;
@@ -9,10 +12,12 @@ public class AuthUnitOfWork : IAuthUnitOfWork
     private readonly IHubContext<NotificationHub, INotificationClient> _hubContext;
     private readonly NotificationHubConecctedUsers _conecctedUsers;
     private readonly IRepository<Notifaction> _notifactionRepository;
+    private readonly IUserPrivilegeUnitOfWork _userPrivilegeUnitOfWork;
 
     public AuthUnitOfWork(IRepository<User> repository, IWebHostEnvironment env,
         IHttpContextAccessor contextAccessor, IJwtProvider jwtProvider, IOptions<JwtAccessOptions> jwtAccessOption,
-        IHubContext<NotificationHub, INotificationClient> hubContext, NotificationHubConecctedUsers conecctedUsers, IRepository<Notifaction> notifactionRepository)
+        IHubContext<NotificationHub, INotificationClient> hubContext, NotificationHubConecctedUsers conecctedUsers, IRepository<Notifaction> notifactionRepository,
+        IUserPrivilegeUnitOfWork userPrivilegeUnitOfWork)
     {
         _repository = repository;
         _env = env;
@@ -22,6 +27,7 @@ public class AuthUnitOfWork : IAuthUnitOfWork
         _hubContext = hubContext;
         _conecctedUsers = conecctedUsers;
         _notifactionRepository = notifactionRepository;
+        _userPrivilegeUnitOfWork  = userPrivilegeUnitOfWork;
     }
 
     public async Task RegisterAsFarmer(User user) => await Register(user, RoleEnum.Farmer);
@@ -42,7 +48,8 @@ public class AuthUnitOfWork : IAuthUnitOfWork
 
         if (!BCrypt.Net.BCrypt.Verify(dto.Password, userFromDb.Password))
             return null;
-
+        Guid userId =  _contextAccessor.GetUserId();
+        List<Priviliege?> pivs = await _userPrivilegeUnitOfWork.GetPriviliegesRelatedToUser(userId);
         return new()
         {
             Value = _jwtProvider.GenrateAccessToken(userFromDb),

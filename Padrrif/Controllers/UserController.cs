@@ -38,7 +38,7 @@
         public async Task<IActionResult> GetUserWithIdentityNo(int id)
         {
             User? user = await _unitOfWork.GetUserWithIdentityNumber(id);
-            if(user == null)
+            if(user != null)
             {
                 return Ok(user);
             }

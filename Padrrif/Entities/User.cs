@@ -25,5 +25,7 @@ public class User : BaseEntity
     public Guid? ComiteeId { get; set; }
     [JsonIgnore]
     public ICollection<Damage>? Damages { get; set; }
+
+    public virtual ICollection<EmployeePrivilieges>? EmployeePrivilieges { get; set;}
 }
 

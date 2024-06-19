@@ -1,4 +1,4 @@
-﻿namespace Padrrif;
+﻿namespace Padrrif.UnitOfWork.Interface;
 
 public interface IDamageUnitOfWork : IUnitOfWork<Damage>
 {

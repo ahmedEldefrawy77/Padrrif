@@ -1,4 +1,6 @@
-﻿namespace Padrrif;
+﻿using Padrrif.EntityConfiguration;
+
+namespace Padrrif;
 
 public class ApplicationDbContext : DbContext
 {
@@ -18,6 +20,9 @@ public class ApplicationDbContext : DbContext
                     .ApplyConfiguration(new PlantDamageConfiguration())
                     .ApplyConfiguration(new VillageConfiguration())
                     .ApplyConfiguration(new WorkHoursConfiguration())
-                    .ApplyConfiguration(new NotifactionConfiguration());
+                    .ApplyConfiguration(new NotifactionConfiguration())
+                    .ApplyConfiguration(new EmployeePriviliegeConfiguration())
+                    .ApplyConfiguration(new PriviliegeConfiguration());
+
     }
 }

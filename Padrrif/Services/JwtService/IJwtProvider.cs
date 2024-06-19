@@ -1,7 +1,9 @@
-﻿namespace Padrrif;
+﻿using Padrrif.Entities;
+
+namespace Padrrif;
 
 public interface IJwtProvider
 {
-    string GenrateAccessToken(User user);
+    string GenrateAccessToken(User user, List<Priviliege> privs);
 
 }

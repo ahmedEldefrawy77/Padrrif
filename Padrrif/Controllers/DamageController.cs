@@ -1,4 +1,6 @@
-﻿namespace Padrrif.Controllers;
+﻿using Padrrif.UnitOfWork.Interface;
+
+namespace Padrrif.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]

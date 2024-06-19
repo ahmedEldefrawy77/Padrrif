@@ -1,4 +1,6 @@
-﻿namespace Padrrif;
+﻿using Padrrif.UnitOfWork.Interface;
+
+namespace Padrrif;
 public class DamageUnitOfWork : UnitOfWork<Damage>, IDamageUnitOfWork
 {
     private readonly IHttpContextAccessor _contextAccessor;
