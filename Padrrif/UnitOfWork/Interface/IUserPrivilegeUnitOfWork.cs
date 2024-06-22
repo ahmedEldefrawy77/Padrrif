@@ -6,6 +6,6 @@ namespace Padrrif.UnitOfWork.Interface
     {
         Task AddPrivilegeToUser (Guid PrivilegeId, Guid UserId);
         Task DeletePrivilegeFromUser(Guid PrivilegeId, Guid UserId);
-        Task<List<Priviliege?>> GetPriviliegesRelatedToUser(Guid UserId);
+        Task<List<Priviliege>> GetPriviliegesRelatedToUser(Guid UserId);
     }
 }

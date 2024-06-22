@@ -48,11 +48,13 @@ public class AuthUnitOfWork : IAuthUnitOfWork
 
         if (!BCrypt.Net.BCrypt.Verify(dto.Password, userFromDb.Password))
             return null;
-        Guid userId =  _contextAccessor.GetUserId();
-        List<Priviliege?> pivs = await _userPrivilegeUnitOfWork.GetPriviliegesRelatedToUser(userId);
+      
+        Guid userid = _contextAccessor.GetUserId();
+        List<Priviliege> pivs = await _userPrivilegeUnitOfWork.GetPriviliegesRelatedToUser(userid);
+        List<string> privNames = pivs.Select(p => p.Name).ToList();
         return new()
         {
-            Value = _jwtProvider.GenrateAccessToken(userFromDb),
+            Value = _jwtProvider.GenrateAccessToken(userFromDb , privNames),
             ExpireAt = DateTime.UtcNow.AddMonths(_jwtAccessOptions.ExpireTimeInMonths),
         };
     }
@@ -146,9 +148,12 @@ public class AuthUnitOfWork : IAuthUnitOfWork
 
         await _repository.Add(user);
 
+        Guid userId = _contextAccessor.GetUserId();
+        List<Priviliege> pivs = await _userPrivilegeUnitOfWork.GetPriviliegesRelatedToUser(userId);
+        List<string> privNames = pivs.Select(p => p.Name).ToList();
         return new()
         {
-            Value = _jwtProvider.GenrateAccessToken(user),
+            Value = _jwtProvider.GenrateAccessToken(user, privNames),
             ExpireAt = DateTime.UtcNow.AddMonths(_jwtAccessOptions.ExpireTimeInMonths),
         };
     }

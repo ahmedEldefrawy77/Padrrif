@@ -5,12 +5,19 @@
     public class AuthController : ControllerBase
     {
         private readonly IAuthUnitOfWork _unitOfWork;
+        private readonly IHttpContextAccessor _contextAccessor;
 
-        public AuthController(IAuthUnitOfWork unitOfWork) => _unitOfWork = unitOfWork;
+        public AuthController(IAuthUnitOfWork unitOfWork, IHttpContextAccessor contextAccessor)
+        {
+            _unitOfWork = unitOfWork;
+            _contextAccessor = contextAccessor;
+        }
+
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto request)
         {
+           
             TokenDto? tokenDto = await _unitOfWork.Login(request); 
 
             if (tokenDto != null) 

@@ -15,7 +15,7 @@ public class GovernorateController : ControllerBase
 
     [HttpGet("{id}")]
     public async Task<IActionResult> Get(Guid id) => Ok(await _unitOfWork.Read(id));
-
+    [Authorize(Policy = "RequirePrivilege")]
     [HttpPost]
     public async Task<IActionResult> Post([FromBody] GovernorateDto dto)
     {

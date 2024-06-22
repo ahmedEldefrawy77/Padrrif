@@ -49,4 +49,10 @@ public static class StaticUnitOfWork
 
         return new(claimsId.Value);
     }
+    public static string GetUserId2(this IHttpContextAccessor context)
+    {
+        var _httpContext = context.HttpContext;
+        var userId = _httpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+        return userId;
+    }
 }

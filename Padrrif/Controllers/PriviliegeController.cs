@@ -10,8 +10,12 @@ namespace Padrrif.Controllers
     public class PriviliegeController : ControllerBase
     {
         private readonly IPriviliegeUnitOfWork _unitOfWork;
+        private readonly IUserPrivilegeUnitOfWork _userPrivilegeUnitOfWork;
 
-        public PriviliegeController(IPriviliegeUnitOfWork unitOfWork) => _unitOfWork = unitOfWork;
+        public PriviliegeController(IPriviliegeUnitOfWork unitOfWork, IUserPrivilegeUnitOfWork userPrivilegeUOW) {
+            _unitOfWork = unitOfWork; 
+            _userPrivilegeUnitOfWork = userPrivilegeUOW;
+        }
 
         [HttpPost]
         public async Task<IActionResult> CreatePriviliege(string priviliege)
@@ -26,6 +30,20 @@ namespace Padrrif.Controllers
                 await _unitOfWork.AddPriviliege(priviliege);
                 return Ok("Priviliege created successfully");
             }
+        }
+        [HttpPost("Add_Privilege")]
+        public async Task<IActionResult> AddPrivilegeToUser(Guid PrivilegeId, Guid UserId)
+        {
+            try
+            {
+                await _userPrivilegeUnitOfWork.AddPrivilegeToUser(PrivilegeId, UserId);
+                return Ok("Privilege Created Add to the User Successfuly");
+            }
+            catch(Exception ex) 
+            {
+                return BadRequest($"Something went wronge while adding the Privlege to the User : {ex.Message}");
+            }
+           
         }
         [HttpGet]
         public async Task<IActionResult> GetPrivileges()

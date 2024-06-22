@@ -1,5 +1,6 @@
 using Microsoft.OpenApi.Models;
 using Padrrif;
+using Padrrif.Authorization;
 using Padrrif.UnitOfWork;
 using Padrrif.UnitOfWork.Interface;
 
@@ -48,6 +49,12 @@ builder.Services.AddDbContext<ApplicationDbContext>(
 //           .EnableSensitiveDataLogging()
 //           .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 //});
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("RequirePrivilege", policy =>
+        policy.Requirements.Add(new PrivilegeRequirement(new[] { "User" })));
+});
+
 builder.Services.AddOptions();
 builder.Services.ConfigureOptions<JwtAccessOptionsSetup>();
 builder.Services.ConfigureOptions<JwtBearerOptionsSetup>();
@@ -73,6 +80,7 @@ builder.Services.AddScoped<IPriviliegeUnitOfWork, PriviliegeUnitOfWork>();
 
 
 builder.Services.AddSingleton<NotificationHubConecctedUsers>();
+builder.Services.AddSingleton<IAuthorizationHandler, PrivilegeHandler>();
 
 builder.Services.AddSignalR();
 

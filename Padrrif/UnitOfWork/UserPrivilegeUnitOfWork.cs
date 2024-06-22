@@ -41,7 +41,7 @@ namespace Padrrif.UnitOfWork
             throw new NotImplementedException();
         }
 
-        public async Task<List<Priviliege?>> GetPriviliegesRelatedToUser(Guid UserId)
+        public async Task<List<Priviliege>> GetPriviliegesRelatedToUser(Guid UserId)
         {
             List<EmployeePrivilieges>? employeePriv = await _employeePriviliegesRepository.GetList(q => q.Where(u => u.EmployeeId == UserId));
             if (employeePriv == null)
@@ -49,7 +49,8 @@ namespace Padrrif.UnitOfWork
 
             List<Guid> privIds = employeePriv.Select(u => u.PrivliegeId).ToList();
 
-            List<Priviliege?> privs = new List<Priviliege?>();
+            List<Priviliege> privs = new List<Priviliege>();
+           
             for (int i = 0; i < privIds.Count; i++)
             {
                 privs.Add(await _priviliegeRepository.GetById(privIds[i]));

@@ -8,20 +8,24 @@ public class JwtProvider : IJwtProvider
     private readonly JwtAccessOptions _jwtAccessOptions;
 
     public JwtProvider(IOptions<JwtAccessOptions> jwtAccessOption) => _jwtAccessOptions = jwtAccessOption.Value;
-    public string GenrateAccessToken(User user, List<Priviliege> privs)
+    public string GenrateAccessToken(User user, List<string> privs)
     {
-        string privilegesJson = JsonSerializer.Serialize(privs);
+        
         var claims = new List<Claim>()
         {
             new("Id", user.Id.ToString()),
             new(JwtRegisteredClaimNames.Name, $"{user.Name}"),
             new(ClaimTypes.Role, user.Role.ToString()),
             new("GovernorateId", user.GovernorateId.ToString()),
-            new("Privilege", privilegesJson)
+           
            
         };
- 
-       string token = TokenGenrator(
+        foreach (var priv in privs)
+        {
+            claims.Add(new Claim("Privilege", priv));
+        }
+
+        string token = TokenGenrator(
             _jwtAccessOptions.SecretKey,
             claims,
             null,
