@@ -37,9 +37,16 @@ public class UserUnitOfWork : UnitOfWork<User>, IUserUnitOfWork
 
     public async Task<List<User>?> GetAllUserBasedOnStatuse(int userenum)
     {
+        Guid userId = _contextAccessor.GetUserId();
+        User? userFromDb = await _repository.GetById(userId);
+        if (userFromDb == null)
+            throw new SecurityTokenArgumentException("invalid Token");
+        
         List<User>? users = null;
         RoleEnum role = (RoleEnum)userenum;
-        users  = await _repository.GetList(q => q.Where(e => e.Role == role));
+
+        if( userFromDb != null)
+        users  = await _repository.GetList(q => q.Where(e => e.Role == role && e.City == userFromDb.City));
 
         return users;
     }

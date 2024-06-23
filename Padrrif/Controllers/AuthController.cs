@@ -1,4 +1,6 @@
-﻿namespace Padrrif.Controllers
+﻿using Padrrif.Dto;
+
+namespace Padrrif.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -18,10 +20,10 @@
         public async Task<IActionResult> Login([FromBody] LoginDto request)
         {
            
-            TokenDto? tokenDto = await _unitOfWork.Login(request); 
+            UserLoginDto? UserLoginDto = await _unitOfWork.Login(request); 
 
-            if (tokenDto != null) 
-                return Ok(tokenDto);
+            if (UserLoginDto?.Value!= null || UserLoginDto?.ExpireAt != null) 
+                return Ok(UserLoginDto);
 
             return BadRequest("Wrong credentials");
         }

@@ -1,4 +1,6 @@
-﻿using Padrrif.Entities;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Padrrif.Dto;
+using Padrrif.Entities;
 using Padrrif.UnitOfWork.Interface;
 
 namespace Padrrif;
@@ -33,7 +35,7 @@ public class AuthUnitOfWork : IAuthUnitOfWork
     public async Task RegisterAsFarmer(User user) => await Register(user, RoleEnum.Farmer);
     public async Task<TokenDto> RegisterAsEmpolyee(User user) => await Register(user, RoleEnum.Empolyee);
     #region login
-    public async Task<TokenDto?> Login(LoginDto dto)
+    public async Task<UserLoginDto?> Login(LoginDto dto)
     {
         User? userFromDb = null;
 
@@ -52,11 +54,30 @@ public class AuthUnitOfWork : IAuthUnitOfWork
         Guid userid = _contextAccessor.GetUserId();
         List<Priviliege> pivs = await _userPrivilegeUnitOfWork.GetPriviliegesRelatedToUser(userid);
         List<string> privNames = pivs.Select(p => p.Name).ToList();
+        User? userFromDataBase = await _repository.GetById(userid);
+        if (userFromDataBase != null)
         return new()
         {
-            Value = _jwtProvider.GenrateAccessToken(userFromDb , privNames),
+           Value = _jwtProvider.GenrateAccessToken(userFromDb , privNames),
             ExpireAt = DateTime.UtcNow.AddMonths(_jwtAccessOptions.ExpireTimeInMonths),
+            Name = userFromDataBase.Name,
+            IdentityNumber = userFromDataBase.IdentityNumber,
+            GovernorateId = userFromDataBase.GovernorateId,
+            City = userFromDataBase.City,
+            Sex = userFromDataBase.Sex,
+            MobilePhoneNumber = userFromDataBase.MobilePhoneNumber,
+            PhoneNumber = userFromDataBase.PhoneNumber,
+            Email = userFromDataBase.Email,
+            BirthDate = userFromDataBase.BirthDate,
+            ImagePath = userFromDataBase.ImagePath,
+            DocumentsPaths = userFromDataBase.DocumentsPaths,
+            Governorate = userFromDataBase.Governorate,
+            Comittee = userFromDataBase.Comittee,
         };
+        else
+        {
+            return null;
+        }
     }
     #endregion
 
