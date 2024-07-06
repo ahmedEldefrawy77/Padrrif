@@ -37,7 +37,7 @@ public class AuthUnitOfWork : IAuthUnitOfWork
     #region login
     public async Task<UserLoginDto?> Login(LoginDto dto)
     {
-        User? userFromDb = null;
+        User? userFromDb = await _repository.GetSingleEntityWithSomeCondiition(e=> e.Where(u=>u.Email == dto.Email || u.IdentityNumber == dto.IdentityNumber));
 
         if (dto.IdentityNumber > 99999999)
             userFromDb = await _repository.GetSingleEntityWithSomeCondiition(q => q.Where(u => u.IdentityNumber == dto.IdentityNumber && u.IsConfirmed));
@@ -51,10 +51,10 @@ public class AuthUnitOfWork : IAuthUnitOfWork
         if (!BCrypt.Net.BCrypt.Verify(dto.Password, userFromDb.Password))
             return null;
       
-        Guid userid = _contextAccessor.GetUserId();
-        List<Priviliege> pivs = await _userPrivilegeUnitOfWork.GetPriviliegesRelatedToUser(userid);
+        
+        List<Priviliege> pivs = await _userPrivilegeUnitOfWork.GetPriviliegesRelatedToUser(userFromDb.Id);
         List<string> privNames = pivs.Select(p => p.Name).ToList();
-        User? userFromDataBase = await _repository.GetById(userid);
+        User? userFromDataBase = await _repository.GetById(userFromDb.Id);
         if (userFromDataBase != null)
         return new()
         {
@@ -123,6 +123,7 @@ public class AuthUnitOfWork : IAuthUnitOfWork
     #endregion
     private async Task<TokenDto> Register(User user, RoleEnum role)
     {
+        
         user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
 
         if (role == RoleEnum.Farmer)
@@ -144,22 +145,32 @@ public class AuthUnitOfWork : IAuthUnitOfWork
 
             List<string> userHubIds = onlineUsers.Select(e => e.ConnectionId).ToList();
 
-            
-            string notifactionMessage = $"المزراع {user.Name} انشاء حساب و بانتظار الموافقة";
-
-            foreach (var id in userHubIds)
-                await _hubContext.Clients.Client(id).ReciveNotification(notifactionMessage);
-
-            foreach (var id in offlineEmployeesIds)
+            Guid EmployeeID = _contextAccessor.GetUserId(); 
+            User? UserFromDb = await _repository.GetById(EmployeeID);
+            if (EmployeeID != Guid.Empty && UserFromDb != null && UserFromDb.Role == RoleEnum.Empolyee)
             {
-                Notifaction notifaction = new()
-                {
-                    Message = notifactionMessage,
-                    UserId = id,
-                    SeenAt = null
-                };
-                await _notifactionRepository.Add(notifaction);
+                user.IsConfirmed = true;
             }
+            else
+            {
+
+                string notifactionMessage = $"المزراع {user.Name} انشاء حساب و بانتظار الموافقة";
+
+                foreach (var id in userHubIds)
+                    await _hubContext.Clients.Client(id).ReciveNotification(notifactionMessage);
+
+                foreach (var id in offlineEmployeesIds)
+                {
+                    Notifaction notifaction = new()
+                    {
+                        Message = notifactionMessage,
+                        UserId = id,
+                        SeenAt = null
+                    };
+                    await _notifactionRepository.Add(notifaction);
+                }
+            }
+           
         }
         else
         {
