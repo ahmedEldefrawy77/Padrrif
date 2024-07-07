@@ -5,8 +5,14 @@
     public class UserController : ControllerBase
     {
         private readonly IUserUnitOfWork _unitOfWork;
+        private readonly IHttpContextAccessor _contextAccessor;
+        private readonly IRepository<User> _repository;
 
-        public UserController(IUserUnitOfWork unitOfWork) => _unitOfWork = unitOfWork;
+        public UserController(IUserUnitOfWork unitOfWork, IHttpContextAccessor contextAccessor,IRepository<User> repository) {
+            _unitOfWork = unitOfWork;
+            _contextAccessor = contextAccessor;
+            _repository = repository;
+        }
 
         [Authorize(Roles = nameof(RoleEnum.Empolyee))]
         [HttpGet("unconfirmed-users")]
@@ -66,6 +72,13 @@
         {
            string res =  await _unitOfWork.UpdateUser(user);
             return Ok(res);
+        }
+        [HttpGet("Get_User_WithToken")]
+        public async Task<IActionResult> GetUserWithToken()
+        {
+            Guid id = _contextAccessor.GetUserId();
+            User? UserFromDb = await _repository.GetById(id);
+            return Ok(UserFromDb);
         }
     }
 }
