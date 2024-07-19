@@ -1,6 +1,7 @@
 using Microsoft.OpenApi.Models;
 using Padrrif;
 using Padrrif.Authorization;
+using Padrrif.Services.PicServices;
 using Padrrif.UnitOfWork;
 using Padrrif.UnitOfWork.Interface;
 
@@ -81,6 +82,8 @@ builder.Services.AddScoped<IOwnerShipTypeUnitOfWork, OwnerShipTypeUnitOfWork>();
 builder.Services.AddScoped<IDamageUnitOfWork, DamageUnitOfWork>();
 builder.Services.AddScoped<IUserPrivilegeUnitOfWork, UserPrivilegeUnitOfWork>();
 builder.Services.AddScoped<IPriviliegeUnitOfWork, PriviliegeUnitOfWork>();
+builder.Services.AddScoped<IDamageReportUnitOfWork,  DamageReportUnitOfWork>();
+builder.Services.AddScoped<IImageService, ImageService>();
 
 
 builder.Services.AddSingleton<NotificationHubConecctedUsers>();

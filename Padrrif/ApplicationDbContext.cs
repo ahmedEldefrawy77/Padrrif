@@ -22,7 +22,8 @@ public class ApplicationDbContext : DbContext
                     .ApplyConfiguration(new WorkHoursConfiguration())
                     .ApplyConfiguration(new NotifactionConfiguration())
                     .ApplyConfiguration(new EmployeePriviliegeConfiguration())
-                    .ApplyConfiguration(new PriviliegeConfiguration());
+                    .ApplyConfiguration(new PriviliegeConfiguration())
+                    .ApplyConfiguration(new DamageReportConfiguration());
 
     }
 }

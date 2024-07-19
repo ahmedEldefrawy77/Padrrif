@@ -98,4 +98,14 @@ public class UserUnitOfWork : UnitOfWork<User>, IUserUnitOfWork
 
         return res = "User has been updated successfully";
     }
+
+    public async Task<List<User>> GetEmployeeWtihCityName(string city)
+    {
+        if(city == string.Empty)
+        {
+            throw new ArgumentNullException(nameof(city));
+        }
+        List<User> usersFromDb = await _repository.GetList(q => q.Where(x => x.City.Contains(city)));
+        return usersFromDb;
+    }
 }

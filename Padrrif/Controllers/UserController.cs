@@ -80,5 +80,11 @@
             User? UserFromDb = await _repository.GetById(id);
             return Ok(UserFromDb);
         }
+        [HttpGet("Get_Users_WithCityName")]
+        public async Task<IActionResult> GetUsers(string cityName)
+        {
+          List<User> UserFromDb = await _unitOfWork.GetEmployeeWtihCityName(cityName);
+            return Ok(UserFromDb);
+        }
     }
 }
