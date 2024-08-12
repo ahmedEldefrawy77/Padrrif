@@ -42,6 +42,10 @@ builder.Services.AddDbContext<ApplicationDbContext>(
                .EnableDetailedErrors()
                .EnableSensitiveDataLogging()
                .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));
+var palestineTimeZone = TimeZoneInfo.FindSystemTimeZoneById("West Bank Standard Time");
+builder.Services.AddSingleton(palestineTimeZone);
+
+
 //builder.Services.AddDbContext<ApplicationDbContext>(options => {
 
 //    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");

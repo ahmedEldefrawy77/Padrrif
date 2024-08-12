@@ -29,9 +29,9 @@ namespace Padrrif.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> RegisterAsFarmer([FromForm] UserRegistrationDto request)
+        public async Task<IActionResult> RegisterAsFarmer([FromForm] FarmerRegDto request)
         {
-            User user = await _unitOfWork.MapFromUserRegistrationDtoToUser(request);
+            User user = await _unitOfWork.MapFromFarmerRegDtoToUser(request);
 
             await _unitOfWork.RegisterAsFarmer(user);
 
@@ -41,7 +41,7 @@ namespace Padrrif.Controllers
 
         //[Authorize(Roles = nameof(RoleEnum.Admin))]
         [HttpPost("create-employee")]
-        public async Task<IActionResult> CreateEmployee([FromForm] UserRegistrationDto request)
+        public async Task<IActionResult> CreateEmployee([FromForm] EmployeeRegDto request)
         {
             User user = await _unitOfWork.MapFromUserRegistrationDtoToUser(request);
 

@@ -12,7 +12,7 @@ using Padrrif;
 namespace Padrrif.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240719141707_DamageReport")]
+    [Migration("20240720171127_DamageReport")]
     partial class DamageReport
     {
         /// <inheritdoc />
@@ -322,12 +322,18 @@ namespace Padrrif.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsSignedReport")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("StageSignaturePath")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Statuse")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 

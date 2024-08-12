@@ -9,7 +9,8 @@
         //CurrentStage begging with Zero to enhance the logic at UOW
         public int CurrentStage { get; set; } = 0;
 
-       
+        public bool IsSignedReport { get; set; }   = false;
+        public DamageReportStatuse Statuse { get; set; }
  
     }
 }

@@ -1,12 +1,15 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Padrrif.Dto;
 using Padrrif.Entities;
+using Padrrif.Services.PicServices;
 using Padrrif.UnitOfWork.Interface;
+using System.Reflection.Metadata;
 
 namespace Padrrif;
 public class AuthUnitOfWork : IAuthUnitOfWork
 {
     private readonly IRepository<User> _repository;
+    private readonly IRepository<ActivityLog> _ActivityRepository;
     private readonly IWebHostEnvironment _env;
     private readonly IHttpContextAccessor _contextAccessor;
     private readonly IJwtProvider _jwtProvider;
@@ -15,11 +18,13 @@ public class AuthUnitOfWork : IAuthUnitOfWork
     private readonly NotificationHubConecctedUsers _conecctedUsers;
     private readonly IRepository<Notifaction> _notifactionRepository;
     private readonly IUserPrivilegeUnitOfWork _userPrivilegeUnitOfWork;
+    private readonly TimeZoneInfo _timeZone;
 
-    public AuthUnitOfWork(IRepository<User> repository, IWebHostEnvironment env,
+    public AuthUnitOfWork(IRepository<User> repository,IRepository<ActivityLog> activityLog, IWebHostEnvironment env,
         IHttpContextAccessor contextAccessor, IJwtProvider jwtProvider, IOptions<JwtAccessOptions> jwtAccessOption,
         IHubContext<NotificationHub, INotificationClient> hubContext, NotificationHubConecctedUsers conecctedUsers, IRepository<Notifaction> notifactionRepository,
-        IUserPrivilegeUnitOfWork userPrivilegeUnitOfWork)
+        IUserPrivilegeUnitOfWork userPrivilegeUnitOfWork,
+        IImageService imageService, TimeZoneInfo timeZone)
     {
         _repository = repository;
         _env = env;
@@ -30,6 +35,8 @@ public class AuthUnitOfWork : IAuthUnitOfWork
         _conecctedUsers = conecctedUsers;
         _notifactionRepository = notifactionRepository;
         _userPrivilegeUnitOfWork  = userPrivilegeUnitOfWork;
+        _timeZone = TimeZoneInfo.FindSystemTimeZoneById("West Bank Standard Time");
+        _ActivityRepository = activityLog;
     }
 
     public async Task RegisterAsFarmer(User user) => await Register(user, RoleEnum.Farmer);
@@ -56,24 +63,35 @@ public class AuthUnitOfWork : IAuthUnitOfWork
         List<string> privNames = pivs.Select(p => p.Name).ToList();
         User? userFromDataBase = await _repository.GetById(userFromDb.Id);
         if (userFromDataBase != null)
-        return new()
         {
-           Value = _jwtProvider.GenrateAccessToken(userFromDb , privNames),
-            ExpireAt = DateTime.UtcNow.AddMonths(_jwtAccessOptions.ExpireTimeInMonths),
-            Name = userFromDataBase.Name,
-            IdentityNumber = userFromDataBase.IdentityNumber,
-            GovernorateId = userFromDataBase.GovernorateId,
-            City = userFromDataBase.City,
-            Sex = userFromDataBase.Sex,
-            MobilePhoneNumber = userFromDataBase.MobilePhoneNumber,
-            PhoneNumber = userFromDataBase.PhoneNumber,
-            Email = userFromDataBase.Email,
-            BirthDate = userFromDataBase.BirthDate,
-            ImagePath = userFromDataBase.ImagePath,
-            DocumentsPaths = userFromDataBase.DocumentsPaths,
-            Governorate = userFromDataBase.Governorate,
-            Comittee = userFromDataBase.Comittee,
-        };
+            ActivityLog activityLog = new ActivityLog();
+
+            activityLog.UserId = userFromDb.IdentityNumber;
+                activityLog.ActivityType = "Farmer Registeration";
+                activityLog.Name = userFromDb.Name + " " + userFromDb.FatherName + " " + userFromDb.FamilyFather;
+                activityLog.TimeStamp = TimeZoneInfo.ConvertTime(DateTime.UtcNow, _timeZone);
+            await _ActivityRepository.Add(activityLog);
+            return new()
+            {
+                Value = _jwtProvider.GenrateAccessToken(userFromDb, privNames),
+                ExpireAt = DateTime.UtcNow.AddMonths(_jwtAccessOptions.ExpireTimeInMonths),
+                Name = userFromDataBase.Name,
+                IdentityNumber = userFromDataBase.IdentityNumber,
+                GovernorateId = userFromDataBase.GovernorateId,
+                City = userFromDataBase.City,
+                Sex = userFromDataBase.Sex,
+                MobilePhoneNumber = userFromDataBase.MobilePhoneNumber,
+                PhoneNumber = userFromDataBase.PhoneNumber,
+                Email = userFromDataBase.Email,
+                BirthDate = userFromDataBase.BirthDate,
+                ImagePath = userFromDataBase.ImagePath,
+                DocumentsPaths = userFromDataBase.DocumentsPaths,
+                Governorate = userFromDataBase.Governorate,
+                Comittee = userFromDataBase.Comittee,
+
+            };
+        }
+           
         else
         {
             return null;
@@ -82,8 +100,10 @@ public class AuthUnitOfWork : IAuthUnitOfWork
     #endregion
 
     #region
-    public async Task<User> MapFromUserRegistrationDtoToUser(UserRegistrationDto dto)
+    public async Task<User> MapFromFarmerRegDtoToUser(FarmerRegDto dto)
     {
+       
+
         User user = new()
         {
             Email = dto.Email,
@@ -106,6 +126,77 @@ public class AuthUnitOfWork : IAuthUnitOfWork
 
         user.ImagePath = imageName.GetFileUrl(_contextAccessor) ?? "";
         List<string>? documentsPaths = null;
+        if (dto.IdCard != null && dto.IdCard.Any() && dto.ProofOfOwnerShip  != null && dto.ProofOfOwnerShip.Any())
+        {
+            documentsPaths = new();
+            foreach (var document in dto.IdCard)
+            {
+                string path = await document.SaveImageAsync(_env);
+                documentsPaths.Add(path.GetFileUrl(_contextAccessor) ?? "");
+            }
+            foreach(var doc in dto.ProofOfOwnerShip)
+            {
+                string path = await doc.SaveImageAsync(_env);
+                documentsPaths.Add(path.GetFileUrl(_contextAccessor) ?? "");
+            }
+            user.DocumentsPaths = documentsPaths;
+        }
+        ActivityLog activityLog = new ActivityLog()
+        {
+            UserId = dto.IdentityNumber,
+            ActivityType = "Farmer Registeration",
+            Name = dto.Name,
+            TimeStamp = TimeZoneInfo.ConvertTime(DateTime.UtcNow, _timeZone),
+        };
+       await _ActivityRepository.Add(activityLog);
+        
+        
+        return user;
+    }
+    public async Task<User> MapFromUserRegistrationDtoToUser(EmployeeRegDto dto)
+    {
+        User user = new()
+        {
+            Email = dto.Email,
+            Name = dto.Name,
+            IdentityNumber = dto.IdentityNumber,
+            GovernorateId = dto.GovernorateId,
+            City = dto.City,
+            Sex = dto.Sex,
+            MobilePhoneNumber = dto.MobilePhoneNumber,
+            PhoneNumber = dto.PhoneNumber,
+            BirthDate = dto.BirthDate,
+            Password = dto.Password,
+            ComiteeId = dto.CommiteeId,
+            FatherName = dto.FatherName,
+            GrandFather = dto.GrandFather,
+            FamilyFather = dto.FamilyFather,
+            NameInEnglish = dto.NameInEnglish,
+            Section = dto.Section,
+            PublicGovernment = dto.PublicGovernment,
+            Unit = dto.Unit,
+            JobTitle = dto.JobTitle,
+            JobNo = dto.JobNo,
+            Salary = dto.Salary,
+            BankName = dto.BankName,
+            IBAN = dto.IBAN,
+            WorkStartedIn = dto.WorkStartedIn,
+        };
+
+        string? imageName = null;
+
+        if (dto.Image != null)
+            imageName = await dto.Image.SaveImageAsync(_env);
+
+        user.ImagePath = imageName.GetFileUrl(_contextAccessor) ?? "";
+
+        string? SignatureName = null;
+        if (dto.SignatureImage != null)
+            SignatureName = await dto.SignatureImage.SaveImageAsync(_env);
+
+        user.SignaturePath = SignatureName.GetFileUrl(_contextAccessor) ?? "";
+
+        List<string>? documentsPaths = null;
         if(dto.Documents != null && dto.Documents.Any())
         {
             documentsPaths = new();
@@ -115,7 +206,16 @@ public class AuthUnitOfWork : IAuthUnitOfWork
                 documentsPaths.Add(path.GetFileUrl(_contextAccessor) ?? "");
             }
             user.DocumentsPaths = documentsPaths;
-        } 
+        }
+
+        ActivityLog activityLog = new ActivityLog()
+        {
+            UserId = dto.IdentityNumber,
+            ActivityType = "Farmer Registeration",
+            Name = dto.Name,
+            TimeStamp = TimeZoneInfo.ConvertTime(DateTime.UtcNow, _timeZone),
+        };
+        await _ActivityRepository.Add(activityLog);
 
         return user;
     }
@@ -189,4 +289,6 @@ public class AuthUnitOfWork : IAuthUnitOfWork
             ExpireAt = DateTime.UtcNow.AddMonths(_jwtAccessOptions.ExpireTimeInMonths),
         };
     }
+
+   
 }

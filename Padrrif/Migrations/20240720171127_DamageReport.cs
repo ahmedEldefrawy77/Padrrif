@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Padrrif.Migrations
 {
     /// <inheritdoc />
-    public partial class first : Migration
+    public partial class DamageReport : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -22,6 +22,24 @@ namespace Padrrif.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Comitee", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "DamageReport",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    StageSignaturePath = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CurrentStage = table.Column<int>(type: "int", nullable: false),
+                    IsSignedReport = table.Column<bool>(type: "bit", nullable: false),
+                    Statuse = table.Column<int>(type: "int", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DamageReport", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -217,7 +235,9 @@ namespace Padrrif.Migrations
                 columns: table => new
                 {
                     EmployeeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    PrivliegeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    PrivliegeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -482,6 +502,9 @@ namespace Padrrif.Migrations
         {
             migrationBuilder.DropTable(
                 name: "AnimalDamage");
+
+            migrationBuilder.DropTable(
+                name: "DamageReport");
 
             migrationBuilder.DropTable(
                 name: "EmployeePrivilieges");

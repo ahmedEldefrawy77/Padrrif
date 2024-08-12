@@ -23,7 +23,7 @@ public class ApplicationDbContext : DbContext
                     .ApplyConfiguration(new NotifactionConfiguration())
                     .ApplyConfiguration(new EmployeePriviliegeConfiguration())
                     .ApplyConfiguration(new PriviliegeConfiguration())
-                    .ApplyConfiguration(new DamageReportConfiguration());
-
+                    .ApplyConfiguration(new DamageReportConfiguration())
+                    .ApplyConfiguration(new ActivityLogConfiguration());
     }
 }

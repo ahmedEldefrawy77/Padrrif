@@ -12,8 +12,8 @@ using Padrrif;
 namespace Padrrif.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240614171707_first")]
-    partial class first
+    [Migration("20240805200008_Log")]
+    partial class Log
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -293,11 +293,79 @@ namespace Padrrif.Migrations
                     b.Property<Guid>("PrivliegeId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.HasKey("EmployeeId", "PrivliegeId");
 
                     b.HasIndex("PrivliegeId");
 
                     b.ToTable("EmployeePrivilieges");
+                });
+
+            modelBuilder.Entity("Padrrif.Entities.ActivityLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ActivityType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("TimeStamp")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ActivityLog");
+                });
+
+            modelBuilder.Entity("Padrrif.Entities.DamageReport", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("CurrentStage")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsSignedReport")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("StageSignaturePath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Statuse")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DamageReport");
                 });
 
             modelBuilder.Entity("Padrrif.Entities.Priviliege", b =>
@@ -552,6 +620,9 @@ namespace Padrrif.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("BankName")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("BirthDate")
                         .HasColumnType("datetime2");
 
@@ -572,8 +643,23 @@ namespace Padrrif.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
 
+                    b.Property<string>("EmployeeNumberOnHoursDevice")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FamilyFather")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FatherName")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<Guid>("GovernorateId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("GrandFather")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("IBAN")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("IdentityNumber")
                         .HasMaxLength(9)
@@ -589,6 +675,12 @@ namespace Padrrif.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<string>("JobNo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("JobTitle")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("MobilePhoneNumber")
                         .IsRequired()
                         .HasMaxLength(15)
@@ -599,6 +691,9 @@ namespace Padrrif.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
 
+                    b.Property<string>("NameInEnglish")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasMaxLength(150)
@@ -608,11 +703,30 @@ namespace Padrrif.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("PublicGovernment")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("Role")
                         .HasColumnType("int");
 
+                    b.Property<string>("Salary")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Section")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("Sex")
                         .HasColumnType("int");
+
+                    b.Property<string>("SignaturePath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Unit")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("WorkStartedIn")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
