@@ -3,6 +3,13 @@
 public class Damage : BaseEntity
 {
     public string? DocumentNumber { get; set; }
+    public string? Name { get; set; }
+    public string? Description { get; set; }
+    public List<string>? StageSignaturePath { get; set; }
+    public int CurrentStage { get; set; }
+    public bool IsSignedDamageReport { get; set; } = false;
+    public DamageReportStatuse Statuse {  get; set; }
+    public FirstCheckWait FirstCheck {  get; set; }
     public Guid EducationLevelId {  get; set; }
     public Guid FarmerId { get; set; }
     public Guid? EmployeeId { get; set; }

@@ -139,6 +139,12 @@ public class AuthUnitOfWork : IAuthUnitOfWork
                 string path = await doc.SaveImageAsync(_env);
                 documentsPaths.Add(path.GetFileUrl(_contextAccessor) ?? "");
             }
+            IFormFile? docu = dto.SignatureImage;
+
+            string signatureImagePath = await docu.SaveImageAsync(_env);
+
+            documentsPaths.Add(signatureImagePath.GetFileUrl(_contextAccessor) ?? "");
+
             user.DocumentsPaths = documentsPaths;
         }
         ActivityLog activityLog = new ActivityLog()
@@ -225,6 +231,11 @@ public class AuthUnitOfWork : IAuthUnitOfWork
     {
         
         user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
+
+        User? userFromDb = await _repository.GetSingleEntityWithSomeCondiition(e => e.Where(e => e.Email == user.Email));
+
+        if (userFromDb != null)
+            throw new ArgumentException(nameof(user.Email), "this Email has been used before, try another Email");
 
         if (role == RoleEnum.Farmer)
         {

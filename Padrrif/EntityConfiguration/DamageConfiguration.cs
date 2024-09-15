@@ -16,5 +16,8 @@ public class DamageConfiguration : BaseEntityConfiguration<Damage>
         builder.HasMany(e => e.PlantDamages).WithOne(e => e.Damage).HasForeignKey(e => e.DamageId);
         builder.HasMany(e => e.FisheryDamages).WithOne(e => e.Damage).HasForeignKey(e => e.DamageId);
         builder.HasOne(e => e.Employee).WithMany(e => e.Damages).HasForeignKey(e => e.EmployeeId).IsRequired(false);
+        builder.Property(e => e.Name).IsRequired();
+        builder.Property(e => e.Description).IsRequired();
+        builder.Property(e => e.CurrentStage).IsRequired();
     }
 }

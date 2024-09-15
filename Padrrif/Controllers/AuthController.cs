@@ -28,7 +28,7 @@ namespace Padrrif.Controllers
             return BadRequest("Wrong credentials");
         }
 
-        [HttpPost("register")]
+        [HttpPost("create-farmer")]
         public async Task<IActionResult> RegisterAsFarmer([FromForm] FarmerRegDto request)
         {
             User user = await _unitOfWork.MapFromFarmerRegDtoToUser(request);

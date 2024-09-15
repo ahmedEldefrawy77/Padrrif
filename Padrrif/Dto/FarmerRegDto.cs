@@ -16,5 +16,6 @@
         public List<IFormFile> IdCard { get; set; } = null!;
         public List<IFormFile> ProofOfOwnerShip { get; set; } = null!;
         public Guid? CommiteeId { get; set; }
+        public IFormFile SignatureImage { get; set; } = null!;
     }
 }
